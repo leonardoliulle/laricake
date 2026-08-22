@@ -15,7 +15,7 @@ export function ForgotPasswordForm() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         if (!hasSupabaseEnv) {
-          setErrorMessage("Supabase environment variables are missing.");
+          setErrorMessage("As variáveis de ambiente do Supabase estão ausentes.");
           return;
         }
 
@@ -24,7 +24,7 @@ export function ForgotPasswordForm() {
     setSuccessMessage(null);
 
     if (!email.trim()) {
-      setErrorMessage("Please enter your email.");
+      setErrorMessage("Por favor, informe seu e-mail.");
       return;
     }
 
@@ -43,7 +43,7 @@ export function ForgotPasswordForm() {
     }
 
     setSuccessMessage(
-      "Password reset email sent. Check your inbox and open the link to continue."
+      "E-mail de redefinição enviado. Verifique sua caixa de entrada e abra o link para continuar."
     );
     setIsLoading(false);
   }
@@ -63,7 +63,7 @@ export function ForgotPasswordForm() {
       ) : null}
 
       <label className="block space-y-1">
-        <span className="text-sm font-medium text-zinc-700">Email</span>
+        <span className="text-sm font-medium text-zinc-700">E-mail</span>
         <input
           type="email"
           autoComplete="email"
@@ -76,12 +76,12 @@ export function ForgotPasswordForm() {
       </label>
 
       <Button className="w-full" type="submit" disabled={isLoading}>
-        {isLoading ? "Sending..." : "Send reset email"}
+        {isLoading ? "Enviando..." : "Enviar e-mail de redefinição"}
       </Button>
 
       <p className="text-sm text-zinc-700">
         <Link className="underline-offset-2 hover:underline" href="/login">
-          Back to login
+          Voltar para o login
         </Link>
       </p>
     </form>

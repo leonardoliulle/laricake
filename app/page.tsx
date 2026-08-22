@@ -5,7 +5,7 @@ import { env } from "@/lib/env";
 export default function Home() {
   const hasSupabaseConfig =
     Boolean(env.NEXT_PUBLIC_SUPABASE_URL) &&
-    Boolean(env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+    Boolean(env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
 
   return (
     <main className="flex-1 py-10 sm:py-14">

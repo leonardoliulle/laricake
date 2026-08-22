@@ -28,7 +28,7 @@ export function LogoutButton() {
 
   return (
     <Button onClick={handleLogout} disabled={isLoading}>
-      {isLoading ? "Signing out..." : "Logout"}
+      {isLoading ? "Saindo..." : "Sair"}
     </Button>
   );
 }

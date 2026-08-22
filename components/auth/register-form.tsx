@@ -24,7 +24,7 @@ export function RegisterForm() {
 
   async function handleGoogleSignIn() {
     if (!hasSupabaseEnv) {
-      setErrorMessage("Supabase environment variables are missing.");
+      setErrorMessage("As variáveis de ambiente do Supabase estão ausentes.");
       return;
     }
 
@@ -49,7 +49,7 @@ export function RegisterForm() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         if (!hasSupabaseEnv) {
-          setErrorMessage("Supabase environment variables are missing.");
+          setErrorMessage("As variáveis de ambiente do Supabase estão ausentes.");
           return;
         }
 
@@ -58,17 +58,17 @@ export function RegisterForm() {
     setSuccessMessage(null);
 
     if (!email.trim()) {
-      setErrorMessage("Please enter your email.");
+      setErrorMessage("Por favor, informe seu e-mail.");
       return;
     }
 
     if (password.length < 6) {
-      setErrorMessage("Password must be at least 6 characters.");
+      setErrorMessage("A senha deve ter pelo menos 6 caracteres.");
       return;
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage("Password and confirmation do not match.");
+      setErrorMessage("Senha e confirmação não coincidem.");
       return;
     }
 
@@ -96,7 +96,7 @@ export function RegisterForm() {
       return;
     }
 
-    setSuccessMessage("Account created. Check your email to confirm your account.");
+    setSuccessMessage("Conta criada. Verifique seu e-mail para confirmar a conta.");
     setIsLoading(false);
   }
 
@@ -120,13 +120,13 @@ export function RegisterForm() {
         onClick={handleGoogleSignIn}
         disabled={isLoading}
       >
-        Continue with Google
+        Continuar com Google
       </Button>
 
       <div className="h-px w-full bg-zinc-200" />
 
       <label className="block space-y-1">
-        <span className="text-sm font-medium text-zinc-700">Email</span>
+        <span className="text-sm font-medium text-zinc-700">E-mail</span>
         <input
           type="email"
           autoComplete="email"
@@ -139,7 +139,7 @@ export function RegisterForm() {
       </label>
 
       <label className="block space-y-1">
-        <span className="text-sm font-medium text-zinc-700">Password</span>
+        <span className="text-sm font-medium text-zinc-700">Senha</span>
         <input
           type="password"
           autoComplete="new-password"
@@ -153,7 +153,7 @@ export function RegisterForm() {
       </label>
 
       <label className="block space-y-1">
-        <span className="text-sm font-medium text-zinc-700">Confirm password</span>
+        <span className="text-sm font-medium text-zinc-700">Confirmar senha</span>
         <input
           type="password"
           autoComplete="new-password"
@@ -167,13 +167,13 @@ export function RegisterForm() {
       </label>
 
       <Button className="w-full" type="submit" disabled={isLoading}>
-        {isLoading ? "Creating account..." : "Create account"}
+        {isLoading ? "Criando conta..." : "Criar conta"}
       </Button>
 
       <p className="text-sm text-zinc-700">
-        Already have an account?{" "}
+        Já tem uma conta?{" "}
         <Link className="underline-offset-2 hover:underline" href="/login">
-          Login
+          Entrar
         </Link>
       </p>
     </form>

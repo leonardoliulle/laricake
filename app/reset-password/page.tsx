@@ -15,8 +15,8 @@ export default async function ResetPasswordPage() {
       <Container className="max-w-lg">
         <Card className="space-y-4">
           <div className="space-y-1">
-            <h1 className="text-xl font-semibold tracking-tight">Reset password</h1>
-            <p className="text-sm text-zinc-600">Set a new password for your account.</p>
+            <h1 className="text-xl font-semibold tracking-tight">Redefinir senha</h1>
+            <p className="text-sm text-zinc-600">Defina uma nova senha para sua conta.</p>
           </div>
 
           <ResetPasswordForm />

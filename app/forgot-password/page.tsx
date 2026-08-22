@@ -9,15 +9,15 @@ export default function ForgotPasswordPage() {
       <Container className="max-w-lg">
         <Card className="space-y-4">
           <div className="space-y-1">
-            <h1 className="text-xl font-semibold tracking-tight">Forgot password</h1>
+            <h1 className="text-xl font-semibold tracking-tight">Esqueceu a senha</h1>
             <p className="text-sm text-zinc-600">
-              Enter your email and we will send a password reset link.
+              Informe seu e-mail e enviaremos um link para redefinir sua senha.
             </p>
           </div>
 
           {!hasSupabaseEnv ? (
             <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-              Supabase environment variables are missing.
+              As variáveis de ambiente do Supabase estão ausentes.
             </p>
           ) : null}
 

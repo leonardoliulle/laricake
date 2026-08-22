@@ -35,13 +35,13 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       <Container className="max-w-lg">
         <Card className="space-y-4">
           <div className="space-y-1">
-            <h1 className="text-xl font-semibold tracking-tight">Login</h1>
-            <p className="text-sm text-zinc-600">Access your account using Google or email/password.</p>
+            <h1 className="text-xl font-semibold tracking-tight">Entrar</h1>
+            {/* <p className="text-sm text-zinc-600">Acesse sua conta com Google ou e-mail/senha.</p> */}
           </div>
 
           {!hasSupabaseEnv ? (
             <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-              Supabase environment variables are missing.
+              Variáveis de ambiente do Supabase estão ausentes.
             </p>
           ) : null}
 

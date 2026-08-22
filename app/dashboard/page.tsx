@@ -26,11 +26,11 @@ export default async function DashboardPage() {
         <Card className="space-y-4">
           <div className="space-y-1">
             <h1 className="text-xl font-semibold tracking-tight">Dashboard</h1>
-            <p className="text-sm text-zinc-600">Authenticated user</p>
+            <p className="text-sm text-zinc-600">Usuário autenticado</p>
           </div>
 
           <p className="text-sm text-zinc-800">
-            Signed in as <span className="font-medium">{user.email ?? "unknown"}</span>
+            Logado com <span className="font-medium">{user.email ?? "desconhecido"}</span>
           </p>
 
           <LogoutButton />

@@ -37,7 +37,7 @@ export function LoginForm({ callbackError, nextPath }: LoginFormProps) {
 
   async function handleGoogleSignIn() {
     if (!hasSupabaseEnv) {
-      setErrorMessage("Supabase environment variables are missing.");
+      setErrorMessage("As variáveis de ambiente do Supabase estão ausentes.");
       return;
     }
 
@@ -61,7 +61,7 @@ export function LoginForm({ callbackError, nextPath }: LoginFormProps) {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         if (!hasSupabaseEnv) {
-          setErrorMessage("Supabase environment variables are missing.");
+          setErrorMessage("As variáveis de ambiente do Supabase estão ausentes.");
           return;
         }
 
@@ -69,12 +69,12 @@ export function LoginForm({ callbackError, nextPath }: LoginFormProps) {
     setErrorMessage(null);
 
     if (!email.trim()) {
-      setErrorMessage("Please enter your email.");
+      setErrorMessage("Por favor, informe seu e-mail.");
       return;
     }
 
     if (!password) {
-      setErrorMessage("Please enter your password.");
+      setErrorMessage("Por favor, informe sua senha.");
       return;
     }
 
@@ -111,19 +111,19 @@ export function LoginForm({ callbackError, nextPath }: LoginFormProps) {
         </p>
       ) : null}
 
-      <Button
+      {/* <Button
         className="w-full"
         variant="secondary"
         onClick={handleGoogleSignIn}
         disabled={isLoading}
       >
-        Continue with Google
-      </Button>
+        Continuar com Google
+      </Button> */}
 
       <div className="h-px w-full bg-zinc-200" />
 
       <label className="block space-y-1">
-        <span className="text-sm font-medium text-zinc-700">Email</span>
+        <span className="text-sm font-medium text-zinc-700">E-mail</span>
         <input
           type="email"
           autoComplete="email"
@@ -136,7 +136,7 @@ export function LoginForm({ callbackError, nextPath }: LoginFormProps) {
       </label>
 
       <label className="block space-y-1">
-        <span className="text-sm font-medium text-zinc-700">Password</span>
+        <span className="text-sm font-medium text-zinc-700">Senha</span>
         <input
           type="password"
           autoComplete="current-password"
@@ -149,18 +149,18 @@ export function LoginForm({ callbackError, nextPath }: LoginFormProps) {
       </label>
 
       <Button className="w-full" type="submit" disabled={isLoading}>
-        {isLoading ? "Signing in..." : "Login"}
+        {isLoading ? "Entrando..." : "Entrar"}
       </Button>
 
       <div className="flex items-center justify-between text-sm">
         <Link className="text-zinc-700 underline-offset-2 hover:underline" href="/register">
-          Create account
+          Criar conta
         </Link>
         <Link
           className="text-zinc-700 underline-offset-2 hover:underline"
           href="/forgot-password"
         >
-          Forgot password?
+          Esqueceu a senha?
         </Link>
       </div>
     </form>

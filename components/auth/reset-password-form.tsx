@@ -18,7 +18,7 @@ export function ResetPasswordForm() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         if (!hasSupabaseEnv) {
-          setErrorMessage("Supabase environment variables are missing.");
+          setErrorMessage("As variáveis de ambiente do Supabase estão ausentes.");
           return;
         }
 
@@ -27,12 +27,12 @@ export function ResetPasswordForm() {
     setSuccessMessage(null);
 
     if (password.length < 6) {
-      setErrorMessage("Password must be at least 6 characters.");
+      setErrorMessage("A senha deve ter pelo menos 6 caracteres.");
       return;
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage("Password and confirmation do not match.");
+      setErrorMessage("Senha e confirmação não coincidem.");
       return;
     }
 
@@ -48,7 +48,7 @@ export function ResetPasswordForm() {
       return;
     }
 
-    setSuccessMessage("Password updated. Redirecting to dashboard...");
+    setSuccessMessage("Senha atualizada. Redirecionando para o painel...");
     router.replace("/dashboard");
     router.refresh();
   }
@@ -68,7 +68,7 @@ export function ResetPasswordForm() {
       ) : null}
 
       <label className="block space-y-1">
-        <span className="text-sm font-medium text-zinc-700">New password</span>
+        <span className="text-sm font-medium text-zinc-700">Nova senha</span>
         <input
           type="password"
           autoComplete="new-password"
@@ -82,7 +82,7 @@ export function ResetPasswordForm() {
       </label>
 
       <label className="block space-y-1">
-        <span className="text-sm font-medium text-zinc-700">Confirm new password</span>
+        <span className="text-sm font-medium text-zinc-700">Confirmar nova senha</span>
         <input
           type="password"
           autoComplete="new-password"
@@ -96,7 +96,7 @@ export function ResetPasswordForm() {
       </label>
 
       <Button className="w-full" type="submit" disabled={isLoading}>
-        {isLoading ? "Updating..." : "Update password"}
+        {isLoading ? "Atualizando..." : "Atualizar senha"}
       </Button>
     </form>
   );

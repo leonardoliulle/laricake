@@ -8,7 +8,7 @@ let browserClient: SupabaseClient | undefined;
 export function createBrowserSupabaseClient() {
   if (!hasSupabaseEnv) {
     throw new Error(
-      "Missing Supabase env vars. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
+      "Missing Supabase env vars. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY."
     );
   }
 
@@ -18,7 +18,7 @@ export function createBrowserSupabaseClient() {
 
   browserClient = createBrowserClient(
     env.NEXT_PUBLIC_SUPABASE_URL,
-    env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
   );
 
   return browserClient;

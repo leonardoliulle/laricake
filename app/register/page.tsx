@@ -23,13 +23,13 @@ export default async function RegisterPage() {
       <Container className="max-w-lg">
         <Card className="space-y-4">
           <div className="space-y-1">
-            <h1 className="text-xl font-semibold tracking-tight">Create account</h1>
-            <p className="text-sm text-zinc-600">Register with Google or email/password.</p>
+            <h1 className="text-xl font-semibold tracking-tight">Criar conta</h1>
+            <p className="text-sm text-zinc-600">Cadastre-se com Google ou e-mail/senha.</p>
           </div>
 
           {!hasSupabaseEnv ? (
             <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-              Supabase environment variables are missing.
+              As variáveis de ambiente do Supabase estão ausentes.
             </p>
           ) : null}
 
