@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Laricake
 
-## Getting Started
+Foundation project with Next.js App Router and Supabase Auth.
 
-First, run the development server:
+## Features implemented (Phase 2)
+
+- Google OAuth login
+- Email/password registration
+- Email/password login
+- Logout
+- Forgot password
+- Password reset
+- Auth persistence via Supabase session cookies
+- Protected route for `/dashboard`
+- Redirect unauthenticated users from `/dashboard` to `/login`
+- Redirect authenticated users from `/login` and `/register` to `/dashboard`
+
+## Environment variables
+
+Create a `.env.local` file:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+```
+
+## Supabase configuration
+
+### 1) Authentication providers
+
+In Supabase dashboard:
+
+1. Open Authentication -> Providers.
+2. Enable Google.
+3. Add your Google OAuth client ID and secret.
+
+Do not hard-code credentials in the app.
+
+### 2) Redirect URLs
+
+In Supabase dashboard:
+
+1. Open Authentication -> URL Configuration.
+2. Set Site URL:
+   - `http://localhost:3000` (local development)
+3. Add Redirect URLs:
+   - `http://localhost:3000/auth/callback`
+   - `https://your-production-domain.com/auth/callback`
+
+For password reset links, the app sends users through:
+
+- `/auth/callback?next=/reset-password`
+
+So `/auth/callback` must be in your allowed redirect URLs.
+
+## Local development
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start dev server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `http://localhost:3000/login`
+- `http://localhost:3000/register`
+- `http://localhost:3000/forgot-password`
+- `http://localhost:3000/reset-password`
+- `http://localhost:3000/dashboard`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Notes
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- This project uses Supabase recommended SSR auth flow for Next.js with middleware and server-side session checks.
+- No password or token is stored manually.
+- No service-role key is exposed in frontend code.
