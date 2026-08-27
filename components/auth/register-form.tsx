@@ -16,6 +16,7 @@ export function RegisterForm() {
   const router = useRouter();
 
   const [email, setEmail] = useState("");
+  const [whatsappNumber, setWhatsappNumber] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -62,6 +63,18 @@ export function RegisterForm() {
       return;
     }
 
+    const normalizedWhatsappNumber = whatsappNumber.replace(/\s+/g, "").trim();
+
+    if (!normalizedWhatsappNumber) {
+      setErrorMessage("Por favor, informe seu WhatsApp.");
+      return;
+    }
+
+    if (!/^\+?[0-9]{10,15}$/.test(normalizedWhatsappNumber)) {
+      setErrorMessage("Informe um número de WhatsApp válido.");
+      return;
+    }
+
     if (password.length < 6) {
       setErrorMessage("A senha deve ter pelo menos 6 caracteres.");
       return;
@@ -81,6 +94,9 @@ export function RegisterForm() {
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
+        data: {
+          whatsapp_number: normalizedWhatsappNumber,
+        },
       },
     });
 
@@ -114,14 +130,14 @@ export function RegisterForm() {
         </p>
       ) : null}
 
-      <Button
+      {/* <Button
         className="w-full"
         variant="secondary"
         onClick={handleGoogleSignIn}
         disabled={isLoading}
       >
         Continuar com Google
-      </Button>
+      </Button> */}
 
       <div className="h-px w-full bg-zinc-200" />
 
@@ -135,6 +151,20 @@ export function RegisterForm() {
           onChange={(event) => setEmail(event.target.value)}
           disabled={isLoading}
           required
+        />
+      </label>
+
+      <label className="block space-y-1">
+        <span className="text-sm font-medium text-zinc-700">WhatsApp</span>
+        <input
+          type="tel"
+          autoComplete="tel"
+          className="h-10 w-full rounded-lg border border-zinc-300 bg-white px-3 text-sm text-zinc-900 outline-none transition-colors focus:border-zinc-500"
+          value={whatsappNumber}
+          onChange={(event) => setWhatsappNumber(event.target.value)}
+          disabled={isLoading}
+          required
+          placeholder="Ex: 5511999999999"
         />
       </label>
 
