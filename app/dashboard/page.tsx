@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 import { LogoutButton } from "@/components/auth/logout-button";
 import { PedidosWorkspace } from "@/components/dashboard/pedidos-workspace";
@@ -8,17 +9,11 @@ import { hasSupabaseEnv } from "@/lib/env";
 import {
   deriveNumericUserIdFromAuthUid,
   getStatusOptions,
+  isUserAdmin,
   resolveNumericUserId,
 } from "@/lib/orders";
+import { fetchProductsForCatalog, type ProductRow } from "@/lib/products";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
-
-type ProductRow = {
-  id: number;
-  created_at: string;
-  product: string | null;
-  photo_name: string | null;
-  photo_path: string | null;
-};
 
 type OrderRow = {
   id: number;
@@ -45,6 +40,8 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
+  const userIsAdmin = isUserAdmin(user);
+
   let resolvedUserId = resolveNumericUserId(user);
   let userIdProvisioningError: string | null = null;
 
@@ -63,10 +60,11 @@ export default async function DashboardPage() {
     }
   }
 
-  const { data: productsData } = await supabase
-    .from("product")
-    .select("id, created_at, product, photo_name, photo_path")
-    .order("created_at", { ascending: false });
+  const {
+    products: productsData,
+    warningMessage: productsWarningMessage,
+    sourceTable: productsSourceTable,
+  } = await fetchProductsForCatalog(supabase);
 
   let ordersQuery = supabase
     .from("in_out")
@@ -83,7 +81,7 @@ export default async function DashboardPage() {
 
   const { data: ordersData } = await ordersQuery;
 
-  const initialProducts = (productsData ?? []) as ProductRow[];
+  const initialProducts = productsData;
   const initialOrders = (ordersData ?? []) as OrderRow[];
   const initialStatusOptions = getStatusOptions(
     initialOrders.map((order) => order.current_status)
@@ -102,10 +100,29 @@ export default async function DashboardPage() {
             Logado com <span className="font-medium">{user.email ?? "desconhecido"}</span>
           </p>
 
+          <p className="text-sm text-zinc-700">
+            Perfil: <span className="font-medium">{userIsAdmin ? "Admin" : "Usuario"}</span>
+          </p>
+
+          {userIsAdmin ? (
+            <Link
+              href="/dashboard/admin"
+              className="inline-flex h-10 items-center justify-center rounded-lg border border-zinc-300 bg-white px-4 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-50"
+            >
+              Ir para painel de estoque (admin)
+            </Link>
+          ) : null}
+
           {resolvedUserId === null ? (
             <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
               Nao foi encontrado um user_id numerico nos metadados da conta. Nao foi possivel definir automaticamente esse valor para permitir criacao e listagem de pedidos em in_out.user_id.
               {userIdProvisioningError ? ` Detalhe: ${userIdProvisioningError}` : ""}
+            </p>
+          ) : null}
+
+          {productsWarningMessage ? (
+            <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+              Houve um problema ao carregar produtos em algumas tabelas candidatas. Tabela usada: {productsSourceTable}. Detalhes: {productsWarningMessage}
             </p>
           ) : null}
 

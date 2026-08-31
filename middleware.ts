@@ -46,6 +46,33 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isAuthPage = pathname === "/login" || pathname === "/register";
   const isDashboardRoute = pathname.startsWith("/dashboard");
+  const isAdminDashboardRoute = pathname.startsWith("/dashboard/admin");
+
+  const roleCandidates: unknown[] = [
+    user?.user_metadata?.role,
+    user?.app_metadata?.role,
+    user?.user_metadata?.roles,
+    user?.app_metadata?.roles,
+  ];
+
+  const hasAdminRole = roleCandidates.some((candidate) => {
+    if (typeof candidate === "string") {
+      return candidate.trim().toLowerCase() === "admin";
+    }
+
+    if (Array.isArray(candidate)) {
+      return candidate.some(
+        (value) => typeof value === "string" && value.trim().toLowerCase() === "admin"
+      );
+    }
+
+    return false;
+  });
+
+  const isAdmin =
+    hasAdminRole ||
+    user?.user_metadata?.is_admin === true ||
+    user?.app_metadata?.is_admin === true;
 
   if (!user && isDashboardRoute) {
     const loginUrl = request.nextUrl.clone();
@@ -58,6 +85,16 @@ export async function middleware(request: NextRequest) {
   }
 
   if (user && isAuthPage) {
+    const dashboardUrl = request.nextUrl.clone();
+    dashboardUrl.pathname = "/dashboard";
+    dashboardUrl.search = "";
+
+    const redirectResponse = NextResponse.redirect(dashboardUrl);
+    applySetCookies(response, redirectResponse);
+    return redirectResponse;
+  }
+
+  if (user && isAdminDashboardRoute && !isAdmin) {
     const dashboardUrl = request.nextUrl.clone();
     dashboardUrl.pathname = "/dashboard";
     dashboardUrl.search = "";

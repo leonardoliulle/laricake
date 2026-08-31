@@ -192,7 +192,7 @@ export function PedidosWorkspace({
     const { error } = await supabase.from("in_out").insert({
       product_Id: selectedProduct.id,
       qt: parsedQuantity,
-      in_out: true,
+      in_out: false,
       user_id: resolvedUserId,
       current_status: defaultCreateStatus,
     });
@@ -266,7 +266,7 @@ export function PedidosWorkspace({
         <div className="space-y-1">
           <h2 className="text-lg font-semibold tracking-tight">Catalogo de Produtos</h2>
           <p className="text-sm text-zinc-600">
-            Selecione um produto e informe a quantidade para criar o seu pedido.
+            Quando voce cria um pedido, o sistema grava uma saida de estoque com in_out = false.
           </p>
         </div>
 

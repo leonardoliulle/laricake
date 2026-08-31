@@ -94,3 +94,34 @@ export function getStatusOptions(existingStatuses: Array<string | null | undefin
 
   return [...FALLBACK_ORDER_STATUSES];
 }
+
+export function isUserAdmin(user: User) {
+  const roleCandidates: unknown[] = [
+    user.user_metadata?.role,
+    user.app_metadata?.role,
+    user.user_metadata?.roles,
+    user.app_metadata?.roles,
+  ];
+
+  for (const candidate of roleCandidates) {
+    if (typeof candidate === "string" && candidate.trim().toLowerCase() === "admin") {
+      return true;
+    }
+
+    if (
+      Array.isArray(candidate) &&
+      candidate.some(
+        (value) => typeof value === "string" && value.trim().toLowerCase() === "admin"
+      )
+    ) {
+      return true;
+    }
+  }
+
+  const isAdminCandidates: unknown[] = [
+    user.user_metadata?.is_admin,
+    user.app_metadata?.is_admin,
+  ];
+
+  return isAdminCandidates.some((candidate) => candidate === true);
+}
