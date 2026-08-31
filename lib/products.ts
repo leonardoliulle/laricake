@@ -56,41 +56,23 @@ function normalizeProductRows(records: Array<Record<string, unknown>>) {
 }
 
 export async function fetchProductsForCatalog(supabase: SupabaseClient): Promise<FetchProductsResult> {
-  const tableCandidates = ["produtos", "products", "product"];
-  const warnings: string[] = [];
-  let fallbackProducts: ProductRow[] | null = null;
-  let fallbackTable = tableCandidates[0];
+  const tableName = "products";
+  const { data, error } = await supabase
+    .from(tableName)
+    .select("*")
+    .order("created_at", { ascending: false });
 
-  for (const tableName of tableCandidates) {
-    const { data, error } = await supabase
-      .from(tableName)
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      warnings.push(`${tableName}: ${error.message}`);
-      continue;
-    }
-
-    const normalizedRows = normalizeProductRows((data ?? []) as Array<Record<string, unknown>>);
-
-    if (fallbackProducts === null) {
-      fallbackProducts = normalizedRows;
-      fallbackTable = tableName;
-    }
-
-    if (normalizedRows.length > 0) {
-      return {
-        products: normalizedRows,
-        sourceTable: tableName,
-        warningMessage: null,
-      };
-    }
+  if (error) {
+    return {
+      products: [],
+      sourceTable: tableName,
+      warningMessage: error.message,
+    };
   }
 
   return {
-    products: fallbackProducts ?? [],
-    sourceTable: fallbackTable,
-    warningMessage: warnings.length > 0 ? warnings.join(" | ") : null,
+    products: normalizeProductRows((data ?? []) as Array<Record<string, unknown>>),
+    sourceTable: tableName,
+    warningMessage: null,
   };
 }

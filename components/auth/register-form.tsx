@@ -6,6 +6,7 @@ import { type FormEvent, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { hasSupabaseEnv } from "@/lib/env";
+import { getSupabaseOAuthErrorMessage } from "@/lib/supabase-auth-errors";
 import { createBrowserSupabaseClient } from "@/lib/supabase-browser";
 
 function getOAuthRedirectUrl() {
@@ -43,7 +44,7 @@ export function RegisterForm() {
     });
 
     if (error) {
-      setErrorMessage(error.message);
+      setErrorMessage(getSupabaseOAuthErrorMessage(error.message));
       setIsLoading(false);
     }
   }

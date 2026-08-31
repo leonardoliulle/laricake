@@ -34,6 +34,8 @@ In Supabase dashboard:
 2. Enable Google.
 3. Add your Google OAuth client ID and secret.
 
+If you see `Unsupported provider: provider is not enabled`, the Google provider is still disabled for the current Supabase project.
+
 Do not hard-code credentials in the app.
 
 ### 2) Redirect URLs

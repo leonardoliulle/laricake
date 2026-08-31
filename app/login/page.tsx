@@ -4,6 +4,7 @@ import { LoginForm } from "@/components/auth/login-form";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { hasSupabaseEnv } from "@/lib/env";
+import { getSupabaseOAuthErrorMessage } from "@/lib/supabase-auth-errors";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 
 type LoginPageProps = {
@@ -16,8 +17,11 @@ function getFirstValue(value: string | string[] | undefined) {
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
-  const callbackError = getFirstValue(params.error) ?? null;
+  const callbackError = getFirstValue(params.error);
   const nextPath = getFirstValue(params.next) ?? "/dashboard";
+  const normalizedCallbackError = callbackError
+    ? getSupabaseOAuthErrorMessage(callbackError)
+    : null;
 
   if (hasSupabaseEnv) {
     const supabase = await createServerSupabaseClient();
@@ -45,7 +49,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             </p>
           ) : null}
 
-          <LoginForm callbackError={callbackError} nextPath={nextPath} />
+          <LoginForm callbackError={normalizedCallbackError} nextPath={nextPath} />
         </Card>
       </Container>
     </main>

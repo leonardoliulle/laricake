@@ -6,6 +6,7 @@ import { type FormEvent, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { hasSupabaseEnv } from "@/lib/env";
+import { getSupabaseOAuthErrorMessage } from "@/lib/supabase-auth-errors";
 import { createBrowserSupabaseClient } from "@/lib/supabase-browser";
 
 type AuthMode = "login" | "register";
@@ -54,7 +55,7 @@ export function LoginForm({ callbackError, nextPath }: LoginFormProps) {
     });
 
     if (error) {
-      setErrorMessage(error.message);
+      setErrorMessage(getSupabaseOAuthErrorMessage(error.message));
       setIsLoading(false);
     }
   }
@@ -111,14 +112,14 @@ export function LoginForm({ callbackError, nextPath }: LoginFormProps) {
         </p>
       ) : null}
 
-      {/* <Button
+      <Button
         className="w-full"
         variant="secondary"
         onClick={handleGoogleSignIn}
         disabled={isLoading}
       >
         Continuar com Google
-      </Button> */}
+      </Button>
 
       <div className="h-px w-full bg-zinc-200" />
 
