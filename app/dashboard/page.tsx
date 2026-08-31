@@ -5,7 +5,11 @@ import { PedidosWorkspace } from "@/components/dashboard/pedidos-workspace";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { hasSupabaseEnv } from "@/lib/env";
-import { getStatusOptions, resolveNumericUserId } from "@/lib/orders";
+import {
+  deriveNumericUserIdFromAuthUid,
+  getStatusOptions,
+  resolveNumericUserId,
+} from "@/lib/orders";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 
 type ProductRow = {
@@ -41,7 +45,23 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const resolvedUserId = resolveNumericUserId(user);
+  let resolvedUserId = resolveNumericUserId(user);
+  let userIdProvisioningError: string | null = null;
+
+  if (resolvedUserId === null) {
+    const derivedUserId = deriveNumericUserIdFromAuthUid(user.id);
+    const { error: updateUserError } = await supabase.auth.updateUser({
+      data: {
+        user_id: derivedUserId,
+      },
+    });
+
+    if (updateUserError) {
+      userIdProvisioningError = updateUserError.message;
+    } else {
+      resolvedUserId = derivedUserId;
+    }
+  }
 
   const { data: productsData } = await supabase
     .from("product")
@@ -84,7 +104,8 @@ export default async function DashboardPage() {
 
           {resolvedUserId === null ? (
             <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-              Nao foi encontrado um user_id numerico nos metadados da conta. Defina esse valor para permitir criacao e listagem de pedidos em `in_out.user_id`.
+              Nao foi encontrado um user_id numerico nos metadados da conta. Nao foi possivel definir automaticamente esse valor para permitir criacao e listagem de pedidos em in_out.user_id.
+              {userIdProvisioningError ? ` Detalhe: ${userIdProvisioningError}` : ""}
             </p>
           ) : null}
 

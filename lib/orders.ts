@@ -70,6 +70,19 @@ export function resolveNumericUserId(user: User) {
   return null;
 }
 
+export function deriveNumericUserIdFromAuthUid(authUid: string) {
+  let hash = 2166136261;
+
+  for (let index = 0; index < authUid.length; index += 1) {
+    hash ^= authUid.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  // Keep the value in a positive signed 32-bit range and avoid zero.
+  const normalizedValue = (hash >>> 1) + 1;
+  return normalizedValue;
+}
+
 export function getStatusOptions(existingStatuses: Array<string | null | undefined>) {
   const normalizedExistingStatuses = existingStatuses
     .map((status) => normalizeOrderStatus(status))
