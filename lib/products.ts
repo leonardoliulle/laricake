@@ -3,9 +3,9 @@ import { type SupabaseClient } from "@supabase/supabase-js";
 export type ProductRow = {
   id: number;
   created_at: string;
-  product: string | null;
-  photo_name: string | null;
-  photo_path: string | null;
+  name: string | null;
+  price: number | null;
+  stock_qty: number | null;
 };
 
 type FetchProductsResult = {
@@ -20,6 +20,26 @@ function readStringField(record: Record<string, unknown>, fieldNames: string[]) 
 
     if (typeof value === "string" && value.trim().length > 0) {
       return value;
+    }
+  }
+
+  return null;
+}
+
+function readNumberField(record: Record<string, unknown>, fieldNames: string[]) {
+  for (const fieldName of fieldNames) {
+    const value = record[fieldName];
+
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value;
+    }
+
+    if (typeof value === "string" && value.trim().length > 0) {
+      const parsedValue = Number(value);
+
+      if (Number.isFinite(parsedValue)) {
+        return parsedValue;
+      }
     }
   }
 
@@ -46,9 +66,9 @@ function normalizeProductRows(records: Array<Record<string, unknown>>) {
     normalizedRows.push({
       id,
       created_at: createdAt,
-      product: readStringField(record, ["product", "nome", "name", "title"]),
-      photo_name: readStringField(record, ["photo_name", "nome_foto", "image_name", "filename"]),
-      photo_path: readStringField(record, ["photo_path", "photo_url", "image", "image_url", "foto", "foto_url"]),
+      name: readStringField(record, ["name", "product", "nome", "title"]),
+      price: readNumberField(record, ["price", "valor", "preco", "unit_price"]),
+      stock_qty: readNumberField(record, ["stock_qty", "stock", "estoque", "quantity"]),
     });
   }
 
@@ -56,7 +76,7 @@ function normalizeProductRows(records: Array<Record<string, unknown>>) {
 }
 
 export async function fetchProductsForCatalog(supabase: SupabaseClient): Promise<FetchProductsResult> {
-  const tableName = "products";
+  const tableName = "l_products";
   const { data, error } = await supabase
     .from(tableName)
     .select("*")

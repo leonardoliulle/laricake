@@ -7,22 +7,38 @@ import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { hasSupabaseEnv } from "@/lib/env";
 import {
-  deriveNumericUserIdFromAuthUid,
   isUserAdmin,
-  resolveNumericUserId,
 } from "@/lib/orders";
-import { fetchProductsForCatalog, type ProductRow } from "@/lib/products";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 
-type StockMovementRow = {
+type ProductRow = {
   id: number;
+  name: string;
+  price: number;
+  stock_qty: number;
+};
+
+type OrderRow = {
+  id: number;
+  customer_id: number | null;
+  status: string;
+  total: number;
+};
+
+type OrderItemRow = {
+  order_id: number;
+  product_id: number;
+  quantity: number;
+  unit_price: number;
+};
+
+type InventoryMovementRow = {
+  id: number;
+  product_id: number | null;
+  quantity: number;
+  type: string;
+  reference: string | null;
   created_at: string;
-  product_Id: number | null;
-  qt: number | null;
-  in_out: boolean | null;
-  user_id: number | null;
-  current_status: string | null;
-  product: ProductRow | ProductRow[] | null;
 };
 
 export default async function AdminDashboardPage() {
@@ -43,33 +59,42 @@ export default async function AdminDashboardPage() {
     redirect("/dashboard");
   }
 
-  let resolvedUserId = resolveNumericUserId(user);
+  const [productsResult, ordersResult, orderItemsResult, movementsResult] = await Promise.all([
+    supabase.from("l_products").select("id, name, price, stock_qty").order("id", { ascending: true }),
+    supabase.from("l_orders").select("id, customer_id, status, total").order("id", { ascending: false }),
+    supabase
+      .from("l_order_items")
+      .select("order_id, product_id, quantity, unit_price")
+      .order("order_id", { ascending: false }),
+    supabase
+      .from("l_inventory_movements")
+      .select("id, product_id, quantity, type, reference, created_at")
+      .order("created_at", { ascending: false })
+      .limit(200),
+  ]);
 
-  if (resolvedUserId === null) {
-    const derivedUserId = deriveNumericUserIdFromAuthUid(user.id);
-    const { error: updateUserError } = await supabase.auth.updateUser({
-      data: {
-        user_id: derivedUserId,
-      },
-    });
+  const warningMessages: string[] = [];
 
-    if (!updateUserError) {
-      resolvedUserId = derivedUserId;
-    }
+  if (productsResult.error) {
+    warningMessages.push(`l_products: ${productsResult.error.message}`);
   }
 
-  const { products: productsData } = await fetchProductsForCatalog(supabase);
+  if (ordersResult.error) {
+    warningMessages.push(`l_orders: ${ordersResult.error.message}`);
+  }
 
-  const { data: stockMovementsData } = await supabase
-    .from("in_out")
-    .select(
-      "id, created_at, product_Id, qt, in_out, user_id, current_status, product:product_Id(id, created_at, product, photo_name, photo_path)"
-    )
-    .order("created_at", { ascending: false })
-    .limit(200);
+  if (orderItemsResult.error) {
+    warningMessages.push(`l_order_items: ${orderItemsResult.error.message}`);
+  }
 
-  const initialProducts = productsData;
-  const initialMovements = (stockMovementsData ?? []) as StockMovementRow[];
+  if (movementsResult.error) {
+    warningMessages.push(`l_inventory_movements: ${movementsResult.error.message}`);
+  }
+
+  const initialProducts = (productsResult.data ?? []) as ProductRow[];
+  const initialOrders = (ordersResult.data ?? []) as OrderRow[];
+  const initialOrderItems = (orderItemsResult.data ?? []) as OrderItemRow[];
+  const initialMovements = (movementsResult.data ?? []) as InventoryMovementRow[];
 
   return (
     <main className="flex-1 py-10 sm:py-14">
@@ -78,7 +103,7 @@ export default async function AdminDashboardPage() {
           <div className="space-y-1">
             <h1 className="text-xl font-semibold tracking-tight">Painel Admin de Estoque</h1>
             <p className="text-sm text-zinc-600">
-              Entradas de estoque (in_out = true) e visao global dos movimentos.
+              CRUD completo para alimentar tabelas de produtos, pedidos, itens e movimentos.
             </p>
           </div>
 
@@ -96,12 +121,19 @@ export default async function AdminDashboardPage() {
 
             <LogoutButton />
           </div>
+
+          {warningMessages.length > 0 ? (
+            <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+              Falha ao carregar alguns dados: {warningMessages.join(" | ")}
+            </p>
+          ) : null}
         </Card>
 
         <AdminStockWorkspace
           initialProducts={initialProducts}
+          initialOrders={initialOrders}
+          initialOrderItems={initialOrderItems}
           initialMovements={initialMovements}
-          resolvedUserId={resolvedUserId}
         />
       </Container>
     </main>

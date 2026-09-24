@@ -10,14 +10,7 @@ import {
   getStatusOptions,
   normalizeOrderStatus,
 } from "@/lib/orders";
-
-type ProductRow = {
-  id: number;
-  created_at: string;
-  product: string | null;
-  photo_name: string | null;
-  photo_path: string | null;
-};
+import { type ProductRow } from "@/lib/products";
 
 type OrderRow = {
   id: number;
@@ -35,36 +28,9 @@ type PedidosWorkspaceProps = {
   initialOrders: OrderRow[];
   initialStatusOptions: string[];
   resolvedUserId: number | null;
+  productsWarningMessage: string | null;
+  productsSourceTable: string;
 };
-
-type ProductImageProps = {
-  src: string | null;
-  alt: string;
-  className?: string;
-};
-
-function ProductImage({ src, alt, className = "" }: ProductImageProps) {
-  const [hasImageError, setHasImageError] = useState(false);
-
-  if (!src || hasImageError) {
-    return (
-      <div
-        className={`flex items-center justify-center rounded-lg bg-zinc-100 text-xs text-zinc-500 ${className}`}
-      >
-        Imagem indisponivel
-      </div>
-    );
-  }
-
-  return (
-    <img
-      src={src}
-      alt={alt}
-      className={`rounded-lg object-cover ${className}`}
-      onError={() => setHasImageError(true)}
-    />
-  );
-}
 
 function getOrderProduct(order: OrderRow) {
   if (Array.isArray(order.product)) {
@@ -81,11 +47,24 @@ function formatPedidoDate(dateValue: string) {
   }).format(new Date(dateValue));
 }
 
+function formatCurrency(value: number | null) {
+  if (value == null || Number.isNaN(value)) {
+    return "Preço indisponivel";
+  }
+
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(value);
+}
+
 export function PedidosWorkspace({
   initialProducts,
   initialOrders,
   initialStatusOptions,
   resolvedUserId,
+  productsWarningMessage,
+  productsSourceTable,
 }: PedidosWorkspaceProps) {
   const supabase = createBrowserSupabaseClient();
 
@@ -140,7 +119,7 @@ export function PedidosWorkspace({
     const query = supabase
       .from("in_out")
       .select(
-        "id, created_at, product_Id, qt, in_out, user_id, current_status, product:product_Id(id, product, photo_name, photo_path)"
+        "id, created_at, product_Id, qt, in_out, user_id, current_status, product:product_Id(id, created_at, name, price, stock_qty)"
       )
       .eq("user_id", resolvedUserId)
       .order("created_at", { ascending: false });
@@ -285,19 +264,19 @@ export function PedidosWorkspace({
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {products.map((product) => {
             const isSelected = selectedProductId === product.id;
-            const productName = product.product?.trim() || `Produto #${product.id}`;
+            const productName = product.name?.trim() || `Produto #${product.id}`;
 
             return (
               <Card key={product.id} className="space-y-3">
-                <ProductImage
-                  src={product.photo_path}
-                  alt={productName}
-                  className="h-36 w-full"
-                />
+                <div className="flex h-36 items-center justify-center rounded-lg bg-zinc-100 px-4 text-center text-xs font-medium text-zinc-500">
+                  {productName}
+                </div>
 
                 <div className="space-y-1">
                   <p className="text-sm font-semibold text-zinc-900">{productName}</p>
                   <p className="text-xs text-zinc-500">ID: {product.id}</p>
+                  <p className="text-xs text-zinc-500">Estoque: {product.stock_qty ?? 0}</p>
+                  <p className="text-xs text-zinc-500">{formatCurrency(product.price)}</p>
                 </div>
 
                 <Button
@@ -312,8 +291,26 @@ export function PedidosWorkspace({
           })}
 
           {products.length === 0 ? (
-            <Card>
-              <p className="text-sm text-zinc-600">Nenhum produto disponivel no momento.</p>
+            <Card className="space-y-2">
+              {productsWarningMessage ? (
+                <>
+                  <p className="text-sm font-medium text-amber-800">
+                    Nao foi possivel carregar os produtos agora.
+                  </p>
+                  <p className="text-sm text-amber-700">
+                    Verifique permissoes de acesso da tabela {productsSourceTable} (RLS/policies) ou tente novamente em instantes.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-medium text-zinc-800">
+                    Ainda nao ha produtos cadastrados.
+                  </p>
+                  <p className="text-sm text-zinc-600">
+                    Peca para um admin cadastrar produtos no painel de estoque para habilitar novos pedidos.
+                  </p>
+                </>
+              )}
             </Card>
           ) : null}
         </div>
@@ -323,7 +320,7 @@ export function PedidosWorkspace({
             <h3 className="text-base font-semibold">Fazer pedido</h3>
             <p className="text-sm text-zinc-600">
               {selectedProduct
-                ? `Produto selecionado: ${selectedProduct.product?.trim() || `Produto #${selectedProduct.id}`}`
+                ? `Produto selecionado: ${selectedProduct.name?.trim() || `Produto #${selectedProduct.id}`}`
                 : "Selecione um produto acima para continuar."}
             </p>
           </div>
@@ -384,21 +381,22 @@ export function PedidosWorkspace({
         <div className="grid gap-3">
           {filteredOrders.map((order) => {
             const orderProduct = getOrderProduct(order);
-            const orderProductName = orderProduct?.product?.trim() || `Produto #${order.product_Id ?? "-"}`;
+            const orderProductName = orderProduct?.name?.trim() || `Produto #${order.product_Id ?? "-"}`;
             const currentStatus = normalizeOrderStatus(order.current_status);
 
             return (
               <Card key={order.id} className="space-y-4">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-                  <ProductImage
-                    src={orderProduct?.photo_path ?? null}
-                    alt={orderProductName}
-                    className="h-24 w-full sm:w-28"
-                  />
+                  <div className="flex h-24 w-full items-center justify-center rounded-lg bg-zinc-100 px-4 text-center text-xs font-medium text-zinc-500 sm:w-28">
+                    {orderProductName}
+                  </div>
 
                   <div className="flex-1 space-y-2">
                     <p className="text-sm font-semibold text-zinc-900">{orderProductName}</p>
                     <p className="text-sm text-zinc-600">Quantidade: {order.qt ?? 0}</p>
+                    {orderProduct ? (
+                      <p className="text-sm text-zinc-600">Preço: {formatCurrency(orderProduct.price)}</p>
+                    ) : null}
                     <p className="text-sm text-zinc-600">
                       Status atual: <span className="font-medium text-zinc-900">{currentStatus}</span>
                     </p>

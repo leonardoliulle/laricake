@@ -69,7 +69,7 @@ export default async function DashboardPage() {
   let ordersQuery = supabase
     .from("in_out")
     .select(
-      "id, created_at, product_Id, qt, in_out, user_id, current_status, product:product_Id(id, created_at, product, photo_name, photo_path)"
+      "id, created_at, product_Id, qt, in_out, user_id, current_status, product:product_Id(id, created_at, name, price, stock_qty)"
     )
     .order("created_at", { ascending: false });
 
@@ -95,6 +95,7 @@ export default async function DashboardPage() {
             <h1 className="text-xl font-semibold tracking-tight">Area de Pedidos</h1>
             <p className="text-sm text-zinc-600">Catalogo de produtos e acompanhamento de pedidos</p>
           </div>
+          {/* <>{JSON.stringify(user) }</> */}
 
           <p className="text-sm text-zinc-800">
             Logado com <span className="font-medium">{user.email ?? "desconhecido"}</span>
@@ -134,6 +135,8 @@ export default async function DashboardPage() {
           initialOrders={initialOrders}
           initialStatusOptions={initialStatusOptions}
           resolvedUserId={resolvedUserId}
+          productsWarningMessage={productsWarningMessage}
+          productsSourceTable={productsSourceTable}
         />
       </Container>
     </main>
